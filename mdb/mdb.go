@@ -16,7 +16,7 @@ type EmailEntry struct {
 }
 
 func TryCreate(db *sql.Db) {
-	query := `	CREATE TABLE emails (
+	query := `CREATE TABLE emails (
 		id				INTEGER PRIMARY KEY,
 		email			TEXT UNIQUE,
 		confirmed_at	INTEGER,
@@ -37,7 +37,7 @@ func TryCreate(db *sql.Db) {
 }
 
 // this function creates an EmailEntry structure from a db row
-func emailEntryFromRow(row *sql.Rows) (*EmailEntry, error) {
+func emailEntryFromRow(rows *sql.Rows) (*EmailEntry, error) {
 	var id int64
 	var email string
 	var confirmedAt int64
@@ -62,9 +62,11 @@ func emailEntryFromRow(row *sql.Rows) (*EmailEntry, error) {
 // CREATE EMAIL
 
 func CreateEmail(db *sql.DB, email string) error {
-	query := `INSERT INTO
+	query := `
+		INSERT INTO
 		emails(email, confirmed_at, opt_out)
-		VALUES(?, 0, false)`
+		VALUES(?, 0, false)
+	`
 	_, err := db.Exec(query, email)
 	// check for errors
 	if err != nil {
@@ -78,9 +80,11 @@ func CreateEmail(db *sql.DB, email string) error {
 // READ EMAIL
 
 func GetEmail(db *sql.DB, email string) (*EmailEntry, error) {
-	query := `SELECT id, email, confirmed_at, opt_out
+	query := `
+		SELECT id, email, confirmed_at, opt_out
 		FROM emails
-		WHERE email = ?`
+		WHERE email = ?
+	`
 	// the data returned by the Query method is returned as rows
 	rows, err := db.Query(query, email)
 	// check for errors
@@ -103,7 +107,8 @@ func GetEmail(db *sql.DB, email string) (*EmailEntry, error) {
 
 func UpdateEmail(db *sql.DB, entry EmailEntry) error {
 	t := entry.ConfirmedAt.Unix()
-	query := `INSET INTO
+	query := `
+		INSET INTO
 		emails(email, confirmed_at, opt_out)
 		VALUES(?, ?, ?)
 		ON CONFLICT(email) DO UPDATE SET
@@ -128,9 +133,11 @@ func DeleteEmail(db *sql.DB, email string) error {
 	// 	WHERE email=?
 	// `
 	// But since this app is a mailing list, we just want to update the opt_out field to be true
-	query := `UPDATE emails
-			  SET opt_out=true
-			  WHERE email=?`
+	query := `
+		UPDATE emails
+		SET opt_out=true
+		WHERE email=?
+	`
 	_, err := db.Exec(query, email)
 	// check for errors
 	if err != nil {
@@ -138,4 +145,44 @@ func DeleteEmail(db *sql.DB, email string) error {
 		return nil
 	}
 	return nil
+}
+
+type GetEmailBatchQueryParams struct {
+	Page int
+	Count int
+}
+
+func getEmailBatch(db *sql.DB, params GetEmailBatchQueryParams) ([]EmailEntry, error) {
+	var empty []EmailEntry
+
+	query := `
+		SELECT id, email, confirmed_at, opt_out
+		FROM emails
+		WHERE opt_out = false
+		ORDER BY id ASC
+		LIMIT ? OFFSET ?
+	`
+
+	rows, err := db.Query(query, params.Count, (params.Page - 1)* params.Count)
+	// check for errors
+	if err != nil {
+		log.Println(err)
+		return empty, err
+	}
+	// Defer close rows operation
+	defer rows.Close()
+
+	// variable for email entries with zero entries, and a capacity defined in params.Count
+	emails := make([]EmailEntry, 0, params.Count)
+
+	// iteration through emails
+	for rows.Next() {
+		email, err := emailEntryFromRow(rows)
+		if err != nil {
+			return nil, err
+		}
+		emails = append(emails, *email)
+	}
+
+	return emails, nil
 }
