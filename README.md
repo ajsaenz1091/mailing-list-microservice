@@ -1,3 +1,7 @@
+# Mailing List Microservice
+
+![GitHub go.mod Go version](https://img.shields.io/github/go-mod/go-version/ajsaenz1091/mailing-list-microservice) ![GitHub language count](https://img.shields.io/github/languages/count/ajsaenz1091/mailing-list-microservice) 
+
 # Setup
 
 This project requires a `gcc` compiler installed and the `protobuf` code generation tools.
