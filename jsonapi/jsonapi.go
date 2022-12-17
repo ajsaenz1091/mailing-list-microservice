@@ -92,7 +92,7 @@ func CreateEmail(db *sql.DB) http.Handler {
 
 // GET
 
-func GetEmail(db *sql.DB) http.Hander {
+func GetEmail(db *sql.DB) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
 		if req.Method != "GET" {
 			return
@@ -185,6 +185,7 @@ func Serve(db *sql.DB, bind string) {
 	http.Handle("/email/get_batch", GetEmailBatch(db))
 	http.Handle("/email/update", UpdateEmail(db))
 	http.Handle("/email/delete", DeleteEmail(db))
+	log.Printf("JSON API serve listening on %v\n", bind)
 	err := http.ListenAndServe(bind, nil)
 	if err != nil {
 		// If an error is returned, Fatalf terinates the application

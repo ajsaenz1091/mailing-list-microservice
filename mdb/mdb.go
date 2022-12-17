@@ -15,7 +15,7 @@ type EmailEntry struct {
 	OptOut      bool
 }
 
-func TryCreate(db *sql.Db) {
+func TryCreate(db *sql.DB) {
 	query := `CREATE TABLE emails (
 		id				INTEGER PRIMARY KEY,
 		email			TEXT UNIQUE,
@@ -37,7 +37,7 @@ func TryCreate(db *sql.Db) {
 }
 
 // this function creates an EmailEntry structure from a db row
-func emailEntryFromRow(rows *sql.Rows) (*EmailEntry, error) {
+func emailEntryFromRow(row *sql.Rows) (*EmailEntry, error) {
 	var id int64
 	var email string
 	var confirmedAt int64
@@ -90,7 +90,7 @@ func GetEmail(db *sql.DB, email string) (*EmailEntry, error) {
 	// check for errors
 	if err != nil {
 		log.Println(err)
-		return nil
+		return nil, err
 	}
 	// the Query methd keeps the db open so it can keep reading more rows so we need to defer closing it to freexe up the db
 	defer rows.Close()
@@ -148,11 +148,11 @@ func DeleteEmail(db *sql.DB, email string) error {
 }
 
 type GetEmailBatchQueryParams struct {
-	Page int
+	Page  int
 	Count int
 }
 
-func getEmailBatch(db *sql.DB, params GetEmailBatchQueryParams) ([]EmailEntry, error) {
+func GetEmailBatch(db *sql.DB, params GetEmailBatchQueryParams) ([]EmailEntry, error) {
 	var empty []EmailEntry
 
 	query := `
@@ -163,7 +163,7 @@ func getEmailBatch(db *sql.DB, params GetEmailBatchQueryParams) ([]EmailEntry, e
 		LIMIT ? OFFSET ?
 	`
 
-	rows, err := db.Query(query, params.Count, (params.Page - 1)* params.Count)
+	rows, err := db.Query(query, params.Count, (params.Page-1)*params.Count)
 	// check for errors
 	if err != nil {
 		log.Println(err)
