@@ -101,12 +101,14 @@ func main() {
 	defer conn.Close()
 	client := pb.NewMailingListServiceClient(conn)
 
-	// newEmail := createEmail(client, "9999@999.999")
-	// newEmail.ConfirmedAt = 10000
-	// updateEmail(client, *newEmail)
-	// deleteEmail(client, newEmail.Email)
+	// Make requests
+
+	newEmail := createEmail(client, "9999@999.999")
+	newEmail.ConfirmedAt = 10000
+	updateEmail(client, *newEmail)
+	deleteEmail(client, newEmail.Email)
 
 	getEmailBatch(client, 3, 1)
-	getEmailBatch(client, 3, 2)
-	getEmailBatch(client, 3, 3)
+	// getEmailBatch(client, 3, 2)
+	// getEmailBatch(client, 3, 3)
 }

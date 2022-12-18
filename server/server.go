@@ -25,6 +25,9 @@ func main() {
 	if args.BindJson == "" {
 		args.BindJson = ":8080"
 	}
+	if args.BindGrpc == "" {
+		args.BindGrpc = ":8081"
+	}
 
 	log.Printf("using database '%v'\n", args.DbPath)
 	db, err := sql.Open("sqlite3", args.DbPath)
@@ -43,6 +46,13 @@ func main() {
 		// start up the json api
 		log.Printf("starting JSON API server...\n")
 		jsonapi.Serve(db, args.BindJson)
+		wg.Done()
+	}()
+	wg.Add(1)
+	go func() {
+		// start up the json api
+		log.Printf("starting gRPC API server...\n")
+		grpcapi.Serve(db, args.BindGrpc)
 		wg.Done()
 	}()
 
