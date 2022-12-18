@@ -18,11 +18,15 @@ Alternatively you can download a pre-built binary from [https://github.com/proto
 
 `go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest`
 
-## Generate Go code from .proto files
+## Run both servers and make requests with the client
 
-```
-protoc --go_out=. --go_opt=paths=source_relative \
-  --go-grpc_out=. --go-grpc_opt=paths=source_relative \
-  Proto/mail.proto
-```
+Once you have set up your environment, you can clone the repository in your machine. Open two terminals and navigate to the project folder on both.
+
+<img src="images/server-snippet.PNG" height="100">
+
+<img src="images/client-snippet.PNG" height="100">
+
+The client has code to make requests to the server, if you want to make more requests, go to clietn/client.go and uncomment the requests right at the bottom and run the client on you terminal again.
+
+
 
