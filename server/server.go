@@ -12,13 +12,12 @@ import (
 )
 
 var args struct {
-	DbPath   string `arg:"env:MAILINGLIST_DB`
+	DbPath   string `arg:"env:MAILINGLIST_DB"`
 	BindJson string `arg:"env:MAILINGLIST_BIND_JSON"`
 	BindGrpc string `arg:"env:MAILINGLIST_BIND_GRPC"`
 }
 
 func main() {
-	// parse command line arguements
 	arg.MustParse(&args)
 
 	if args.DbPath == "" {
@@ -33,7 +32,6 @@ func main() {
 
 	log.Printf("using database '%v'\n", args.DbPath)
 	db, err := sql.Open("sqlite3", args.DbPath)
-
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -45,14 +43,13 @@ func main() {
 
 	wg.Add(1)
 	go func() {
-		// start up the json api
 		log.Printf("starting JSON API server...\n")
 		jsonapi.Serve(db, args.BindJson)
 		wg.Done()
 	}()
+
 	wg.Add(1)
 	go func() {
-		// start up the json api
 		log.Printf("starting gRPC API server...\n")
 		grpcapi.Serve(db, args.BindGrpc)
 		wg.Done()

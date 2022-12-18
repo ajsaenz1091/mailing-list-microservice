@@ -22,7 +22,6 @@ message GetEmailBatchRequest {
 message EmailResponse { optional EmailEntry email_entry = 1; }
 message GetEmailBatchResponse { repeated EmailEntry email_entries = 1; }
 
-// This creates mail_grpc.pb.go and mail.pb.go files
 service MailingListService {
   rpc CreateEmail(CreateEmailRequest) returns (EmailResponse) {}
   rpc GetEmail(GetEmailRequest) returns (EmailResponse) {}
